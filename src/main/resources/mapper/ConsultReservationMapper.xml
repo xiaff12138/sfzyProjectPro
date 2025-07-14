@@ -1,0 +1,165 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hualan.sfzy.mapper.ConsultReservationMapper">
+
+    <resultMap id="BaseResultMap" type="com.hualan.sfzy.model.entity.ConsultReservation">
+        <id property="id" column="id"/>
+        <result property="reservationTime" column="reservation_time"/>
+        <result property="situationDesc" column="situation_desc"/>
+        <result property="userId" column="user_id"/>
+        <result property="consultId" column="consult_id"/>
+        <result property="del" column="del"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,reservation_time,situation_desc,user_id,consult_id,del
+    </sql>
+
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from consult_reservation
+        where id = #{id}
+        and del = 0
+    </select>
+
+
+    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.hualan.sfzy.model.entity.ConsultReservation"
+            useGeneratedKeys="true">
+        insert into consult_reservation
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="reservationTime != null">reservation_time,</if>
+            <if test="situationDesc != null">situation_desc,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="consultId != null">consult_id,</if>
+            <if test="del != null">del,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="reservationTime != null">#{reservationTime},</if>
+            <if test="situationDesc != null">#{situationDesc},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="consultId != null">#{consultId},</if>
+            <if test="del != null">#{del},</if>
+        </trim>
+    </insert>
+    <update id="updateByPrimaryKeySelective" parameterType="com.hualan.sfzy.model.entity.ConsultReservation">
+        update consult_reservation
+        <set>
+            <if test="reservationTime != null">
+                reservation_time = #{reservationTime},
+            </if>
+            <if test="situationDesc != null">
+                situation_desc = #{situationDesc},
+            </if>
+            <if test="userId != null">
+                user_id = #{userId},
+            </if>
+            <if test="consultId != null">
+                consult_id = #{consultId},
+            </if>
+            <if test="del != null">
+                del = #{del},
+            </if>
+        </set>
+        where id = #{id}
+        and del = 0
+
+
+    </update>
+
+    <!--    逻辑删除-->
+    <update id="deleteLogic" parameterType="java.lang.Integer">
+        update consult_reservation
+        set del = 1
+        where id = #{id}
+    </update>
+
+    <!--    批量逻辑删除-->
+    <update id="deleteMultiple" parameterType="java.lang.Integer">
+        update consult_reservation
+        set del = 1
+        where id in
+        <foreach item="id" collection="array" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <!--    根据用户名和咨询师名模糊查询-->
+    <resultMap id="MultipleSelect" type="com.hualan.sfzy.model.entity.ConsultReservation">
+        <id property="id" column="id"/>
+        <result property="reservationTime" column="reservation_time"/>
+        <result property="situationDesc" column="situation_desc"/>
+        <result property="userId" column="user_id"/>
+        <result property="consultId" column="consult_id"/>
+        <result property="del" column="del"/>
+        <association property="consult" javaType="com.hualan.sfzy.model.entity.Consult">
+            <id property="id" column="id"/>
+            <result property="consultName" column="consult_name"/>
+            <result property="consultGrade" column="consult_grade"/>
+            <result property="mobile" column="consult_mobile"/>
+            <result property="sex" column="consult_sex"/>
+            <result property="certImg" column="consult_cert_img"/>
+            <result property="address" column="consult_address"/>
+            <result property="introduction" column="consult_introduction"/>
+            <result property="job" column="consult_job"/>
+            <result property="consultDel" column="consult_del"/>
+        </association>
+        <association property="systemUsers" javaType="com.hualan.sfzy.model.entity.SystemUsers">
+            <id property="id" column="id"/>
+            <result property="username" column="username"/>
+            <result property="userpwd" column="userpwd"/>
+            <result property="mobile" column="mobile"/>
+            <result property="email" column="email"/>
+            <result property="nickname" column="nickname"/>
+            <result property="salt" column="salt"/>
+            <result property="del" column="del"/>
+        </association>
+    </resultMap>
+
+    <select id="selectMultiple" parameterType="com.hualan.sfzy.model.vo.ConsultReservationQuery" resultMap="MultipleSelect">
+        SELECT
+        cr.id,
+        cr.reservation_time,
+        cr.situation_desc,
+        cr.del,
+        -- 咨询师表字段（与Consult对象映射）
+        c.id AS consult_id, -- 映射到Consult的id
+        c.consult_name,
+        c.consult_grade,
+        c.mobile AS consult_mobile, -- 与system_users的mobile区分
+        c.sex AS consult_sex,
+        c.cert_img AS consult_cert_img,
+        c.address AS consult_address,
+        c.introduction AS consult_introduction,
+        c.job AS consult_job,
+        c.del AS consult_del,
+        -- 系统用户表字段（与SystemUsers对象映射）
+        su.id AS system_user_id, -- 与其他表的id区分
+        su.username,
+        su.userpwd,
+        su.mobile, -- 系统用户的mobile
+        su.email,
+        su.nickname,
+        su.salt,
+        su.del AS system_user_del -- 与其他表的del区分
+        FROM
+        consult_reservation cr -- 主表：咨询预约表
+        LEFT JOIN
+        consult c ON cr.consult_id = c.id -- 关联咨询师表
+        LEFT JOIN
+        system_users su ON cr.user_id = su.id -- 关联系统用户表（假设consult表通过system_user_id关联system_users）
+        WHERE
+        cr.del = 0
+        <if test="username != null and username != ''">
+            AND su.username LIKE CONCAT('%', #{username}, '%') -- 按用户名模糊查询
+        </if>
+        <if test="consultName != null and consultName != ''">
+            AND c.consult_name LIKE CONCAT('%', #{consultName}, '%') -- 按咨询师名模糊查询
+        </if>
+    </select>
+
+</mapper>

@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hualan.sfzy.mapper.ArticleMapper">
+
+    <resultMap id="BaseResultMap" type="com.hualan.sfzy.model.entity.Article">
+        <id property="id" column="id"/>
+        <result property="articleName" column="article_name"/>
+        <result property="articleIntroduction" column="article_introduction"/>
+        <result property="consultId" column="consult_id"/>
+        <result property="url" column="url"/>
+        <result property="content" column="content"/>
+        <result property="viewCount" column="count"/>
+        <result property="classifyId" column="classify_id"/>
+        <result property="articleTime" column="article_time"/>
+        <result property="status" column="status"/>
+        <result property="articleDel" column="del"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id
+        ,article_name,article_introduction,consult_id,url,content,
+        count,classify_id,article_time,status,del
+    </sql>
+    <!--根据文章的id查询文章    -->
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from article
+        where id = #{id}
+        and del = 0
+    </select>
+    <resultMap id="MultipleResultMap" type="com.hualan.sfzy.model.entity.Article">
+        <!-- 文章基本信息 -->
+        <id column="article_id" property="id"/>
+        <result column="article_name" property="articleName"/>
+        <result column="article_introduction" property="articleIntroduction"/>
+        <result column="url" property="url"/>
+        <result column="content" property="content"/>
+        <result column="view_count" property="viewCount"/>
+        <result column="article_time" property="articleTime"/>
+        <result column="status" property="status"/>
+        <result column="article_del" property="articleDel"/>
+
+        <!-- 关联作者信息 (一篇文章只有一个作者) -->
+        <association property="consult" javaType="com.hualan.sfzy.model.entity.Consult">
+            <id column="author_id" property="id"/>
+            <result column="consult_name" property="consultName"/>
+            <result column="consult_grade" property="consultGrade"/>
+            <result column="author_mobile" property="mobile"/>
+            <result column="sex" property="sex"/>
+            <result column="cert_img" property="certImg"/>
+            <result column="address" property="address"/>
+            <result column="author_introduction" property="introduction"/>
+            <result column="author_job" property="job"/>
+            <result column="author_del" property="consultDel"/>
+        </association>
+        <!-- 关联分类信息 (一篇文章只有一个分类) -->
+        <association property="articleClassify" javaType="com.hualan.sfzy.model.entity.ArticleClassify">
+            <id column="category_id" property="id"/>
+            <result column="category_name" property="classifyName"/>
+            <result column="category_del" property="articleClassifyDel"/>
+        </association>
+    </resultMap>
+    <!--    根据文章的文章名、作者、分类进行多条件查询-->
+    <select id="selectMultiple" resultMap="MultipleResultMap" parameterType="com.hualan.sfzy.model.vo.ArticleQuery">
+        SELECT
+        a.id AS article_id,
+        a.article_name,
+        a.article_introduction,
+        a.url,
+        a.content,
+        a.count AS view_count,
+        a.article_time,
+        a.`status`,
+        a.del AS article_del,
+
+        -- 作者信息（添加前缀区分）
+        c.id AS author_id,
+        c.consult_name,
+        c.consult_grade,
+        c.mobile AS author_mobile,
+        c.sex,
+        c.cert_img,
+        c.address,
+        c.introduction AS author_introduction,
+        c.job AS author_job,
+        c.del AS author_del,
+
+        -- 分类信息（添加前缀区分）
+        ac.id AS category_id,
+        ac.classify_name AS category_name,
+        ac.del AS category_del
+
+        FROM article a
+        -- 一篇文章只有一个作者，使用LEFT JOIN确保即使没有作者信息也能查询到文章
+        LEFT JOIN consult c ON a.consult_id = c.id
+        -- 一篇文章只有一个分类，使用LEFT JOIN确保即使没有分类信息也能查询到文章
+        LEFT JOIN article_classify ac ON a.classify_id = ac.id
+        <where>
+            -- 只查询未删除的数据
+            a.del = 0
+            AND c.del = 0
+            AND ac.del = 0
+            -- 文章名条件：模糊查询
+            <if test="articleName != null and articleName != ''">
+             AND   a.article_name LIKE CONCAT('%', #{articleName}, '%')
+            </if>
+            -- 作者条件：可通过作者ID或作者名查询
+            <if test="authorId != null">
+                AND c.id = #{authorId}
+            </if>
+
+            -- 分类条件：通过分类ID查询
+            <if test="classifyId != null">
+                AND ac.id = #{classifyId}
+            </if>
+
+        </where>
+        ORDER BY a.article_time DESC
+    </select>
+
+
+    <!--    逻辑删除文章-->
+    <update id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        update article
+        set del = 1
+        where id = #{id}
+    </update>
+
+    <!--    新增文章-->
+    <insert id="insert" parameterType="com.hualan.sfzy.model.entity.Article">
+        insert into article
+        (id, article_name, article_introduction, consult_id, url, content,
+         count, classify_id, article_time, status, del)
+        values (#{id}, #{articleName}, #{articleIntroduction}, #{consultId}, #{url}, #{content},
+                #{viewCount}, #{classifyId}, #{articleTime}, #{status}, #{articleDel})
+    </insert>
+    <!--    编辑文章内容-->
+    <update id="updateByPrimaryKeySelective" parameterType="com.hualan.sfzy.model.entity.Article">
+        update article
+        <set>
+            <if test="articleName != null">
+                article_name = #{articleName},
+            </if>
+            <if test="articleIntroduction != null">
+                article_introduction = #{articleIntroduction},
+            </if>
+            <if test="consultId != null">
+                consult_id = #{consultId},
+            </if>
+            <if test="url != null">
+                url = #{url},
+            </if>
+            <if test="content != null">
+                content = #{content},
+            </if>
+            <if test="viewCount != null">
+                count = #{viewCount},
+            </if>
+            <if test="classifyId != null">
+                classify_id = #{classifyId},
+            </if>
+            <if test="articleTime != null">
+                article_time = #{articleTime},
+            </if>
+            <if test="status != null">
+                status = #{status},
+            </if>
+            <if test="articleDel != null">
+                del = #{articleDel},
+            </if>
+        </set>
+        where id = #{id}
+        and del = 0
+    </update>
+    <!--   批量删除功能-->
+    <update id="deleteMultiple" parameterType="java.lang.Integer">
+        update article
+        set del = 1
+        where id in
+        <foreach item="id" collection="array" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </update>
+</mapper>

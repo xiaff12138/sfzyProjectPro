@@ -1,0 +1,43 @@
+spring:
+  datasource:
+    driver-class-name: com.mysql.cj.jdbc.Driver
+    url: jdbc:mysql://1.tcp.vip.cpolar.top:14215/sfzy?characterEncoding=utf8&useSSL=false&serverTimezone=UTC&rewriteBatchedStatements=true
+    username: uroot
+    password: uroot
+    #切换数据源:内置数据源失效，自定义数据源生效
+    type: com.alibaba.druid.pool.DruidDataSource
+    #Druid数据源的配置信息，#Spring Boot 默认是不注入这些属性值的，需要自己绑定
+    #基础配置
+    initialSize: 5
+    minIdle: 5
+    maxActive: 20
+    maxWait: 60000
+  web:
+    resources:
+      static-locations: classpath:/static/,file:D:/upload/
+  servlet:
+    multipart:
+      # 配置单个上传文件的大小的限制
+      max-file-size: 10MB
+      # 配置在一次请求中上传文件的总容量的限制
+      max-request-size: 50MB
+  mvc:
+    pathmatch:
+      matching-strategy: ant_path_matcher
+pagehelper:
+  reasonable: true
+
+#mybatis配置
+mybatis:
+  #加载mapper文件
+  mapper-locations: classpath:mapper/*.xml
+  #配置类型别名基础包
+  type-aliases-package: com.hualan.sfzy.model
+  #全局参数配置
+  configuration:
+    #开启驼峰转下划线
+    map-underscore-to-camel-case: true
+  #延迟加载
+  lazy-loading-enabled: true
+
+

@@ -1,0 +1,74 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hualan.sfzy.mapper.ArticleClassifyMapper">
+
+    <resultMap id="BaseResultMap" type="com.hualan.sfzy.model.entity.ArticleClassify">
+            <id property="id" column="id" />
+            <result property="classifyName" column="classify_name" />
+            <result property="articleClassifyDel" column="del" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,classify_name,del
+    </sql>
+<!--根据id查询-->
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from article_classify
+        where  id = #{id}
+        and del = 0
+    </select>
+
+<!--    根据分类名模糊查询-->
+    <select id="selectByClassifyName" parameterType="String" resultMap="BaseResultMap">
+        select
+            <include refid="Base_Column_List"/>
+            from article_classify
+        where classify_name like  concat('%',#{classifyName},'%')
+        and del = 0
+    </select>
+
+
+
+<!--逻辑删除文章分类-->
+    <update id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        update article_classify
+        set del = 1
+        where id = #{id}
+    </update>
+
+<!--新增文章分类-->
+    <insert id="insert" keyColumn="id" keyProperty="id" parameterType="com.hualan.sfzy.model.entity.ArticleClassify" useGeneratedKeys="true">
+        insert into article_classify
+        ( id,classify_name,del)
+        values (#{id},#{classifyName},#{articleClassifyDel})
+    </insert>
+<!--根据id更新信息-->
+    <update id="updateByPrimaryKeySelective" parameterType="com.hualan.sfzy.model.entity.ArticleClassify">
+        update article_classify
+        <set>
+                <if test="classifyName != null">
+                    classify_name = #{classifyName},
+                </if>
+                <if test="articleClassifyDel != null">
+                    del = #{articleClassifyDel},
+                </if>
+        </set>
+        where   id = #{id}
+        and del = 0
+    </update>
+
+<!--    逻辑批量删除-->
+    <update id="deleteMultiple" parameterType="java.lang.Integer">
+        update article_classify
+        set del = 1
+        where id in
+        <foreach item="id" collection="array" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </update>
+
+</mapper>

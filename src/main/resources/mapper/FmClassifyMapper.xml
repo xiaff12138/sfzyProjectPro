@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hualan.sfzy.mapper.FmClassifyMapper">
+
+    <resultMap id="BaseResultMap" type="com.hualan.sfzy.model.entity.FmClassify">
+            <id property="id" column="id" />
+            <result property="classifyName" column="classify_name" />
+            <result property="fmClassifyDel" column="del" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,classify_name,del
+    </sql>
+<!--根据id查询分类信息-->
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from fm_classify
+        where  id = #{id}
+        and del = 0
+    </select>
+
+
+    <!-- 新增分类-->
+    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.hualan.sfzy.model.entity.FmClassify" useGeneratedKeys="true">
+        insert into fm_classify
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="id != null">id,</if>
+                <if test="classifyName != null">classify_name,</if>
+                <if test="fmClassifyDel != null">del,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+                <if test="id != null">#{id},</if>
+                <if test="classifyName != null">#{classifyName},</if>
+                <if test="fmClassifyDel != null">#{fmClassifyDel},</if>
+        </trim>
+    </insert>
+<!--    根据id编辑分类-->
+    <update id="updateByPrimaryKeySelective" parameterType="com.hualan.sfzy.model.entity.FmClassify">
+        update fm_classify
+        <set>
+                <if test="classifyName != null">
+                    classify_name = #{classifyName},
+                </if>
+                <if test="fmClassifyDel != null">
+                    del = #{fmClassifyDel},
+                </if>
+        </set>
+        where   id = #{id}
+        and del = 0
+    </update>
+
+
+<!--逻辑批量删除-->
+    <update id="deleteMultiple" parameterType="java.lang.Integer">
+        update fm_classify
+        set del = 1
+        where id in
+        <foreach item="item" index="index" collection="array"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+<!-- 根据id逻辑删除   -->
+    <update id="deleteByPrimaryKey" parameterType="java.lang.Integer">
+        update fm_classify
+        set del = 1
+        where  id = #{id}
+    </update>
+
+<!--    根据分类名模糊查询-->
+    <select id="selectByClassifyName" parameterType="java.lang.String" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from fm_classify
+        where  classify_name like concat('%',#{classifyName},'%')
+        and del = 0
+    </select>
+</mapper>

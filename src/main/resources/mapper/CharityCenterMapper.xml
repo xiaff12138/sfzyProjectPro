@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hualan.sfzy.mapper.CharityCenterMapper">
+
+    <resultMap id="BaseResultMap" type="com.hualan.sfzy.model.entity.CharityCenter">
+            <id property="id" column="id" />
+            <result property="title" column="title" />
+            <result property="introduction" column="introduction" />
+            <result property="url" column="url" />
+            <result property="content" column="content" />
+            <result property="charityTime" column="charity_time" />
+            <result property="consultId" column="consult_id" />
+            <result property="charityCenterDel" column="del" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,title,introduction,url,content,charity_time,
+        consult_id,del
+    </sql>
+<!--根据id查询信息-->
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from charity_center
+        where  id = #{id}
+        and del = 0
+    </select>
+
+<!--插入信息-->
+
+    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.hualan.sfzy.model.entity.CharityCenter" useGeneratedKeys="true">
+        insert into charity_center
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="id != null">id,</if>
+                <if test="title != null">title,</if>
+                <if test="introduction != null">introduction,</if>
+                <if test="url != null">url,</if>
+                <if test="content != null">content,</if>
+                <if test="charityTime != null">charity_time,</if>
+                <if test="consultId != null">consult_id,</if>
+                <if test="charityCenterDel != null">del,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+                <if test="id != null">#{id},</if>
+                <if test="title != null">#{title},</if>
+                <if test="introduction != null">#{introduction},</if>
+                <if test="url != null">#{url},</if>
+                <if test="content != null">#{content},</if>
+                <if test="charityTime != null">#{charityTime},</if>
+                <if test="consultId != null">#{consultId},</if>
+                <if test="charityCenterDel != null">#{charityCenterDel},</if>
+        </trim>
+    </insert>
+<!--    根据id更新信息-->
+    <update id="updateByPrimaryKeySelective" parameterType="com.hualan.sfzy.model.entity.CharityCenter">
+        update charity_center
+        <set>
+                <if test="title != null">
+                    title = #{title},
+                </if>
+                <if test="introduction != null">
+                    introduction = #{introduction},
+                </if>
+                <if test="url != null">
+                    url = #{url},
+                </if>
+                <if test="content != null">
+                    content = #{content},
+                </if>
+                <if test="charityTime != null">
+                    charity_time = #{charityTime},
+                </if>
+                <if test="consultId != null">
+                    consult_id = #{consultId},
+                </if>
+                <if test="charityCenterDel != null">
+                    del = #{charityCenterDel},
+                </if>
+        </set>
+        where   id = #{id}
+        and del = 0
+</update>
+
+<!--    根据id逻辑删除-->
+    <update id="deleteLogic" parameterType="java.lang.Integer">
+        update charity_center
+        set del = 1
+        where   id = #{id}
+    </update>
+<!--    逻辑批量删除-->
+    <update id="deleteMultiple" parameterType="java.lang.Integer">
+        update charity_center
+        set del = 1
+        where id in
+        <foreach item="item" index="index" collection="array"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+<!--    根据文章名和作者名模糊查询-->
+    <resultMap id="MultipleSelect" type="com.hualan.sfzy.model.entity.CharityCenter">
+        <id property="id" column="id" />
+        <result property="title" column="title" />
+        <result property="introduction" column="introduction" />
+        <result property="url" column="url" />
+        <result property="content" column="content" />
+        <result property="charityTime" column="charity_time" />
+        <result property="consultId" column="consult_id" />
+        <result property="charityCenterDel" column="del" />
+        <association property="consult" javaType="com.hualan.sfzy.model.entity.Consult">
+            <id property="id" column="consult_id" />
+            <result property="consultName" column="consult_name" />
+            <result property="consultGrade" column="consult_grade" />
+            <result property="mobile" column="consult_mobile" />
+            <result property="sex" column="consult_sex" />
+            <result property="certImg" column="consult_cert_img" />
+            <result property="address" column="consult_address" />
+            <result property="introduction" column="consult_introduction" />
+            <result property="job" column="consult_job" />
+            <result property="consultDel" column="consult_del" />
+        </association>
+    </resultMap>
+    
+    <select id="selectMultiple" resultMap="MultipleSelect" parameterType="com.hualan.sfzy.model.vo.CharityCenterQuery">
+        SELECT
+        c.id,
+        c.title,
+        c.introduction,
+        c.url,
+        c.content,
+        c.charity_time,
+        c.consult_id,
+        c.del,
+        -- 咨询表字段（添加前缀区分）
+       -
+        con.consult_name,
+        con.consult_grade,
+        con.mobile AS consult_mobile,
+        con.sex AS consult_sex,
+        con.cert_img AS consult_cert_img,
+        con.address AS consult_address,
+        con.introduction AS consult_introduction,
+        con.job AS consult_job,
+        con.del AS consult_del
+        FROM
+        charity_center c
+        LEFT JOIN
+        consult con ON c.consult_id = con.id  -- 关联条件：主表consult_id = 咨询表id
+        WHERE
+        c.del = 0  -- 通常会过滤未删除的数据，可根据实际需求调整
+        -- 可添加其他查询条件
+        <if test="title != null and title != ''">
+            AND c.title LIKE CONCAT('%', #{title}, '%')
+        </if>
+        <if test="consultId != null">
+            AND c.consult_id = #{consultId}
+        </if>
+    </select>
+</mapper>

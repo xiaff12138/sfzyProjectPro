@@ -1,0 +1,141 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hualan.sfzy.mapper.ConsultNoticeMapper">
+
+    <resultMap id="BaseResultMap" type="com.hualan.sfzy.model.entity.ConsultNotice">
+        <id property="id" column="id"/>
+        <result property="noticeName" column="notice_name"/>
+        <result property="content" column="content"/>
+        <result property="url" column="url"/>
+        <result property="noticeTime" column="notice_time"/>
+        <result property="userId" column="user_id"/>
+        <result property="del" column="del"/>
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id
+        ,notice_name,content,url,notice_time,user_id,
+        del
+    </sql>
+    <!--查询-->
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List"/>
+        from consult_notice
+        where id = #{id}
+        and del = 0
+    </select>
+
+
+    <!--   新增-->
+    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.hualan.sfzy.model.entity.ConsultNotice"
+            useGeneratedKeys="true">
+        insert into consult_notice
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+            <if test="id != null">id,</if>
+            <if test="noticeName != null">notice_name,</if>
+            <if test="content != null">content,</if>
+            <if test="url != null">url,</if>
+            <if test="noticeTime != null">notice_time,</if>
+            <if test="userId != null">user_id,</if>
+            <if test="del != null">del,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+            <if test="id != null">#{id},</if>
+            <if test="noticeName != null">#{noticeName},</if>
+            <if test="content != null">#{content},</if>
+            <if test="url != null">#{url},</if>
+            <if test="noticeTime != null">#{noticeTime},</if>
+            <if test="userId != null">#{userId},</if>
+            <if test="del != null">#{del},</if>
+        </trim>
+    </insert>
+    <!--    更新-->
+    <update id="updateByPrimaryKeySelective" parameterType="com.hualan.sfzy.model.entity.ConsultNotice">
+        update consult_notice
+        <set>
+            <if test="noticeName != null">
+                notice_name = #{noticeName},
+            </if>
+            <if test="content != null">
+                content = #{content},
+            </if>
+            <if test="url != null">
+                url = #{url},
+            </if>
+            <if test="noticeTime != null">
+                notice_time = #{noticeTime},
+            </if>
+            <if test="userId != null">
+                user_id = #{userId},
+            </if>
+            <if test="del != null">
+                del = #{del},
+            </if>
+        </set>
+        where id = #{id}
+        and del = 0
+    </update>
+    <!--   逻辑删除-->
+    <update id="deleteLogic" parameterType="java.lang.Integer">
+        update consult_notice
+        set del = 1
+        where id = #{id}
+    </update>
+    <!--    批量逻辑删除-->
+    <update id="deleteMultiple" parameterType="java.lang.Integer">
+        update consult_notice
+        set del = 1
+        where id in
+        <foreach item="id" collection="array" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </update>
+
+    <!--    根据公告名和公告内容进行模糊查询-->
+    <resultMap id="MultipleSelect" type="com.hualan.sfzy.model.entity.ConsultNotice">
+        <id property="id" column="id"/>
+        <result property="noticeName" column="notice_name"/>
+        <result property="content" column="content"/>
+        <result property="url" column="url"/>
+        <result property="noticeTime" column="notice_time"/>
+        <result property="userId" column="user_id"/>
+        <result property="del" column="del"/>
+        <association property="consult" javaType="com.hualan.sfzy.model.entity.Consult">
+            <id property="id" column="id"/>
+            <result property="consultName" column="consult_name"/>
+            <result property="consultGrade" column="consult_grade"/>
+            <result property="mobile" column="mobile"/>
+            <result property="sex" column="sex"/>
+            <result property="certImg" column="cert_img"/>
+            <result property="address" column="address"/>
+            <result property="introduction" column="introduction"/>
+            <result property="job" column="job"/>
+            <result property="consultDel" column="consult_del"/>
+
+        </association>
+    </resultMap>
+
+    <select id="selectMultiple" resultMap="MultipleSelect" parameterType="com.hualan.sfzy.model.vo.ConsultNoticeQuery">
+        SELECT
+        id,
+        notice_name,
+        content,
+        url,
+        notice_time,
+        user_id,
+        del
+        FROM
+        consult_notice
+        WHERE
+        del = 0
+        <if test="noticeName != null and noticeName != ''">
+            AND notice_name LIKE CONCAT('%', #{noticeName}, '%')
+        </if>
+        <if test="content != null and content != ''">
+            AND content LIKE CONCAT('%', #{content}, '%')
+        </if>
+    </select>
+</mapper>

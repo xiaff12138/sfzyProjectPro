@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hualan.sfzy.mapper.PsychologyKnowledgeMapper">
+
+    <resultMap id="BaseResultMap" type="com.hualan.sfzy.model.entity.PsychologyKnowledge">
+            <id property="id" column="id" />
+            <result property="title" column="title" />
+            <result property="introduction" column="introduction" />
+            <result property="url" column="url" />
+            <result property="content" column="content" />
+            <result property="psychologyTime" column="psychology_time" />
+            <result property="consultId" column="consult_id" />
+            <result property="del" column="del" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,title,introduction,url,content,psychology_time,
+        consult_id,del
+    </sql>
+
+<!--    根据id查询信息-->
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from psychology_knowledge
+        where  id = #{id}
+        and del = 0
+    </select>
+
+
+<!--   根据id插入信息-->
+    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.hualan.sfzy.model.entity.PsychologyKnowledge" useGeneratedKeys="true">
+        insert into psychology_knowledge
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="id != null">id,</if>
+                <if test="title != null">title,</if>
+                <if test="introduction != null">introduction,</if>
+                <if test="url != null">url,</if>
+                <if test="content != null">content,</if>
+                <if test="psychologyTime != null">psychology_time,</if>
+                <if test="consultId != null">consult_id,</if>
+                <if test="del != null">del,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+                <if test="id != null">#{id},</if>
+                <if test="title != null">#{title},</if>
+                <if test="introduction != null">#{introduction},</if>
+                <if test="url != null">#{url},</if>
+                <if test="content != null">#{content},</if>
+                <if test="psychologyTime != null">#{psychologyTime},</if>
+                <if test="consultId != null">#{consultId},</if>
+                <if test="del != null">#{del},</if>
+        </trim>
+    </insert>
+<!--    根据id更新信息-->
+    <update id="updateByPrimaryKeySelective" parameterType="com.hualan.sfzy.model.entity.PsychologyKnowledge">
+        update psychology_knowledge
+        <set>
+                <if test="title != null">
+                    title = #{title},
+                </if>
+                <if test="introduction != null">
+                    introduction = #{introduction},
+                </if>
+                <if test="url != null">
+                    url = #{url},
+                </if>
+                <if test="content != null">
+                    content = #{content},
+                </if>
+                <if test="psychologyTime != null">
+                    psychology_time = #{psychologyTime},
+                </if>
+                <if test="consultId != null">
+                    consult_id = #{consultId},
+                </if>
+                <if test="del != null">
+                    del = #{del},
+                </if>
+        </set>
+        where   id = #{id}
+        and del = 0
+    </update>
+
+<!--    逻辑删除信息-->
+    <update id="deleteLogic" parameterType="java.lang.Integer">
+        update psychology_knowledge
+        set del = 1
+        where   id = #{id}
+    </update>
+<!--    逻辑批量删除-->
+    <update id="deleteMultiple" parameterType="java.lang.Integer">
+        update psychology_knowledge
+        set del = 1
+        where id in
+        <foreach item="id" collection="array" separator="," open="(" close=")">
+            #{id}
+        </foreach>
+    </update>
+<!--    根据文章名和作者连表查询-->
+    <resultMap id="MultipleSelect" type="com.hualan.sfzy.model.entity.PsychologyKnowledge">
+        <id property="id" column="id" />
+        <result property="title" column="title" />
+        <result property="introduction" column="introduction" />
+        <result property="url" column="url" />
+        <result property="content" column="content" />
+        <result property="psychologyTime" column="psychology_time" />
+        <result property="consultId" column="consult_id" />
+        <result property="del" column="del" />
+        <association property="consult" javaType="com.hualan.sfzy.model.entity.Consult">
+            <id property="id" column="id" />
+            <result property="consultName" column="consult_name" />
+            <result property="introduction" column="consult_introduction" />
+            <result property="mobile" column="mobile" />
+            <result property="sex" column="sex" />
+            <result property="certImg" column="cert_img" />
+            <result property="address" column="address" />
+            <result property="job" column="job" />
+            <result property="consultGrade" column="consult_grade" />
+            <result property="consultDel" column="consult_del" />
+        </association>
+    </resultMap>
+
+
+    <select id="selectMultiple" parameterType="com.hualan.sfzy.model.vo.PsychologyKnowledgeQuery" resultMap="MultipleSelect">
+
+        SELECT
+            pk.id,
+            pk.title,
+            pk.introduction,
+            pk.url,
+            pk.content,
+            pk.psychology_time,
+            pk.consult_id,
+            pk.del,
+            -- 关联查询consult表的字段（注意在resultMap中association的column对应）
+
+            c.consult_name,      -- 映射到consultName
+            c.introduction AS consultIntroduction,  -- 映射到consultIntroduction
+            c.mobile,            -- 映射到mobile
+            c.sex,               -- 映射到sex
+            c.cert_img,          -- 映射到certImg
+            c.address,           -- 映射到address
+            c.job,               -- 映射到job
+            c.consult_grade,     -- 映射到consultGrade
+            c.del AS consult_del  -- 映射到consultDel（注意与主表del区分）
+        FROM
+            psychology_knowledge pk  -- 主表：心理学知识表，别名pk
+                LEFT JOIN
+            consult c ON pk.consult_id = c.id  -- 关联条件：主表的consult_id = 咨询师表的id
+        WHERE
+            pk.del = 0
+        <if test="title != null and title != ''">
+            AND pk.title LIKE CONCAT('%', #{title}, '%')  -- 按标题模糊查询
+        </if>
+        <if test="consultId != null">
+            AND pk.consult_id = #{consultId}  -- 按咨询师ID筛选
+        </if>
+    </select>
+</mapper>

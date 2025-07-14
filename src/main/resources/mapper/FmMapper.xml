@@ -1,0 +1,121 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hualan.sfzy.mapper.FmMapper">
+
+    <resultMap id="BaseResultMap" type="com.hualan.sfzy.model.entity.Fm">
+            <id property="id" column="id" />
+            <result property="title" column="title" />
+            <result property="fmId" column="fm_id" />
+            <result property="fmDel" column="del" />
+            <result property="url" column="url" />
+    </resultMap>
+
+    <sql id="Base_Column_List">
+        id,title,fm_id,del,url
+    </sql>
+<!--根据id查询数据-->
+    <select id="selectByPrimaryKey" parameterType="java.lang.Integer" resultMap="BaseResultMap">
+        select
+        <include refid="Base_Column_List" />
+        from fm
+        where  id = #{id}
+        and del = 0
+    </select>
+
+<!--   插入fm数据-->
+    <insert id="insertSelective" keyColumn="id" keyProperty="id" parameterType="com.hualan.sfzy.model.entity.Fm" useGeneratedKeys="true">
+        insert into fm
+        <trim prefix="(" suffix=")" suffixOverrides=",">
+                <if test="id != null">id,</if>
+                <if test="title != null">title,</if>
+                <if test="fmId != null">fm_id,</if>
+                <if test="fmDel != null">del,</if>
+                <if test="url != null">url,</if>
+        </trim>
+        <trim prefix="values (" suffix=")" suffixOverrides=",">
+                <if test="id != null">#{id},</if>
+                <if test="title != null">#{title},</if>
+                <if test="fmId != null">#{fmId},</if>
+                <if test="fmDel != null">#{fmDel},</if>
+                <if test="url != null">#{url},</if>
+        </trim>
+    </insert>
+<!--    更新数据-->
+    <update id="updateByPrimaryKeySelective" parameterType="com.hualan.sfzy.model.entity.Fm">
+        update fm
+        <set>
+                <if test="title != null">
+                    title = #{title},
+                </if>
+                <if test="fmId != null">
+                    fm_id = #{fmId},
+                </if>
+                <if test="fmDel != null">
+                    del = #{fmDel},
+                </if>
+                <if test="url != null">
+                    url = #{url},
+                </if>
+        </set>
+        where   id = #{id}
+        and del = 0
+    </update>
+<!--    根据id逻辑删除-->
+    <update id="deleteLogic" parameterType="java.lang.Integer">
+        update fm
+        set del = 1
+        where   id = #{id}
+    </update>
+<!--    批量逻辑删除-->
+    <update id="deleteMultiple" parameterType="java.lang.Integer">
+        update fm
+        set del = 1
+        where id in
+        <foreach item="item" index="index" collection="array"
+                 open="(" separator="," close=")">
+            #{item}
+        </foreach>
+    </update>
+
+<!--    多条件模糊查询-->
+    <resultMap id="MultipleResultMap" type="com.hualan.sfzy.model.entity.Fm">
+        <id property="id" column="id" />
+        <result property="title" column="title" />
+
+        <result property="fmDel" column="del" />
+        <result property="url" column="url" />
+        <association property="fmClassify"  javaType="com.hualan.sfzy.model.entity.FmClassify">
+            <id property="id" column="classify_id" />
+            <result property="classifyName" column="classify_name" />
+            <result property="fmClassifyDel" column="classify_del" />
+        </association>
+    </resultMap>
+
+    <select id="selectMultiple" resultMap="MultipleResultMap" parameterType="com.hualan.sfzy.model.vo.FmQuery">
+        SELECT
+            f.id,
+            f.title,
+
+            f.del,
+            f.url,
+            c.id AS classify_id,
+            c.classify_name,
+            c.del AS classify_del
+        FROM
+            fm f
+                LEFT JOIN
+            fm_classify c ON f.fm_id = c.id
+        WHERE
+         f.del=0
+        <if test="title != null and title != ''">
+            AND f.title LIKE CONCAT('%', #{title}, '%')
+        </if>
+        <if test="classifyId != null">
+            AND f.fm_id = #{classifyId}
+        </if>
+
+
+    </select>
+</mapper>
