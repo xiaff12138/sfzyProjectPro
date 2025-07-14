@@ -18,4 +18,8 @@ public interface ArticleService {
     int updateByPrimaryKeySelective(Article record);//编辑文章内容
 
     int  deleteMultiple(Integer[] ids);//批量删除功能
+
+    // 新增DTO相关方法
+    com.hualan.sfzy.model.dto.ArticleDTO selectDTOByPrimaryKey(Integer id);
+    java.util.List<com.hualan.sfzy.model.dto.ArticleDTO> selectMultipleDTO(com.hualan.sfzy.model.vo.ArticleQuery query);
 }

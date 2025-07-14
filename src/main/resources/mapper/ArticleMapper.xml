@@ -15,7 +15,7 @@
         <result property="classifyId" column="classify_id"/>
         <result property="articleTime" column="article_time"/>
         <result property="status" column="status"/>
-        <result property="articleDel" column="del"/>
+        <result property="del" column="del"/>
     </resultMap>
 
     <sql id="Base_Column_List">
@@ -135,7 +135,7 @@
         (id, article_name, article_introduction, consult_id, url, content,
          count, classify_id, article_time, status, del)
         values (#{id}, #{articleName}, #{articleIntroduction}, #{consultId}, #{url}, #{content},
-                #{viewCount}, #{classifyId}, #{articleTime}, #{status}, #{articleDel})
+                #{viewCount}, #{classifyId}, #{articleTime}, #{status}, #{del})
     </insert>
     <!--    编辑文章内容-->
     <update id="updateByPrimaryKeySelective" parameterType="com.hualan.sfzy.model.entity.Article">
@@ -168,9 +168,7 @@
             <if test="status != null">
                 status = #{status},
             </if>
-            <if test="articleDel != null">
-                del = #{articleDel},
-            </if>
+            <if test="del != null">del = #{del},</if>
         </set>
         where id = #{id}
         and del = 0

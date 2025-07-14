@@ -12,6 +12,5 @@ public class Points {
     private Integer id;
     private Integer user_id;
     private Integer points;
-    private SystemUsers users;
 
 }

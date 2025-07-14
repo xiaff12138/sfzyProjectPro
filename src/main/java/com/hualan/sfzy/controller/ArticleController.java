@@ -2,6 +2,7 @@ package com.hualan.sfzy.controller;
 
 
 import com.hualan.sfzy.model.entity.Article;
+import com.hualan.sfzy.model.dto.ArticleDTO;
 
 import com.hualan.sfzy.service.ArticleService;
 import com.hualan.sfzy.model.vo.ArticleQuery;
@@ -99,10 +100,10 @@ public class ArticleController {
     public ResponseEntity<Map<String, Object>> findById(@PathVariable Integer id) {
         Map<String, Object> result = new HashMap<>();
         try {
-           Article article = articleService.selectByPrimaryKey(id);
-           if (article != null) {
+           ArticleDTO articleDTO = articleService.selectDTOByPrimaryKey(id);
+           if (articleDTO != null) {
                result.put("success", true);
-               result.put("data", article);
+               result.put("data", articleDTO);
            }else {
                result.put("success", false);
                result.put("message", "未找到相关信息");
@@ -119,7 +120,7 @@ public class ArticleController {
     public ResponseEntity<Map<String, Object>> findMultiple(@RequestBody ArticleQuery query){
         Map<String, Object> result = new HashMap<>();
         try {
-            List<Article> articles = articleService.selectMultiple(query);
+            java.util.List<ArticleDTO> articles = articleService.selectMultipleDTO(query);
             if (articles != null && articles.size() > 0) {
                 result.put("success", true);
                 result.put("data", articles);

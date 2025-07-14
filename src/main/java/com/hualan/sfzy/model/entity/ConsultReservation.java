@@ -43,7 +43,5 @@ public class ConsultReservation {
      * 是否删除：0正常 1删除
      */
     private Integer del;
-    private Consult consult;//咨询师
-    private SystemUsers systemUsers;//用户
 
 }

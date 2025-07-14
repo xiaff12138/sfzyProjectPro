@@ -54,7 +54,5 @@ public class PsychologyKnowledge {
      * 是否删除：0正常 1删除
      */
     private Integer del;
-    //咨询师信息
-    private Consult consult;
 
 }

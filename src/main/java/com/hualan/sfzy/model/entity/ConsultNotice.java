@@ -49,6 +49,4 @@ public class ConsultNotice {
      */
     private Integer del;
 
-    private Consult consult;
-
 }

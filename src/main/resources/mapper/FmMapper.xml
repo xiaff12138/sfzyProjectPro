@@ -8,7 +8,7 @@
             <id property="id" column="id" />
             <result property="title" column="title" />
             <result property="fmId" column="fm_id" />
-            <result property="fmDel" column="del" />
+            <result property="del" column="del" />
             <result property="url" column="url" />
     </resultMap>
 
@@ -31,14 +31,14 @@
                 <if test="id != null">id,</if>
                 <if test="title != null">title,</if>
                 <if test="fmId != null">fm_id,</if>
-                <if test="fmDel != null">del,</if>
+                <if test="del != null">del,</if>
                 <if test="url != null">url,</if>
         </trim>
         <trim prefix="values (" suffix=")" suffixOverrides=",">
                 <if test="id != null">#{id},</if>
                 <if test="title != null">#{title},</if>
                 <if test="fmId != null">#{fmId},</if>
-                <if test="fmDel != null">#{fmDel},</if>
+                <if test="del != null">#{del},</if>
                 <if test="url != null">#{url},</if>
         </trim>
     </insert>
@@ -52,8 +52,8 @@
                 <if test="fmId != null">
                     fm_id = #{fmId},
                 </if>
-                <if test="fmDel != null">
-                    del = #{fmDel},
+                <if test="del != null">
+                    del = #{del},
                 </if>
                 <if test="url != null">
                     url = #{url},
@@ -84,7 +84,7 @@
         <id property="id" column="id" />
         <result property="title" column="title" />
 
-        <result property="fmDel" column="del" />
+        <result property="del" column="del" />
         <result property="url" column="url" />
         <association property="fmClassify"  javaType="com.hualan.sfzy.model.entity.FmClassify">
             <id property="id" column="classify_id" />

@@ -34,9 +34,4 @@ public class Fm {
      * 缩略图
      */
     private String url;
-
-    /**
-     * fm分类
-     */
-    private FmClassify fmClassify;
 }

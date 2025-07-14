@@ -14,6 +14,4 @@ public class UserRole {
     private Integer userId;
     private Integer roleId;
     private Integer del;
-    private  SystemUsers user;
-    private  Role role;
 }

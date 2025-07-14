@@ -68,9 +68,5 @@ public class Article {
     /**
      * 是否删除：0正常 1删除
      */
-    private Integer articleDel;
-    //文章分类
-    private  ArticleClassify    articleClassify;
-    //咨询师
-    private  Consult    consult;
+    private Integer del;
 }
