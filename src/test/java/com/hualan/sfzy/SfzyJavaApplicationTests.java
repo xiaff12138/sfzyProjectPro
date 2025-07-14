@@ -18,4 +18,6 @@ class SfzyJavaApplicationTests {
         System.out.println("最大连接数:" + druidDataSource.getMaxActive());
         System.out.println("最长等待时间:" + druidDataSource.getMaxWait());
     }
+
+    //测试01
 }
