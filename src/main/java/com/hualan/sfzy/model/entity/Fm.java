@@ -28,7 +28,7 @@ public class Fm {
     /**
      * 是否删除：0正常 1删除
      */
-    private Integer fmDel;
+    private Integer del;
 
     /**
      * 缩略图

@@ -31,9 +31,9 @@
         where id = #{id}
         and del = 0
     </select>
-    <resultMap id="MultipleResultMap" type="com.hualan.sfzy.model.entity.Article">
+    <resultMap id="MultipleResultMap" type="com.hualan.sfzy.model.dto.ArticleDTO">
         <!-- 文章基本信息 -->
-        <id column="article_id" property="id"/>
+        <id column="article_id" property="article.id"/>
         <result column="article_name" property="articleName"/>
         <result column="article_introduction" property="articleIntroduction"/>
         <result column="url" property="url"/>
@@ -41,7 +41,7 @@
         <result column="view_count" property="viewCount"/>
         <result column="article_time" property="articleTime"/>
         <result column="status" property="status"/>
-        <result column="article_del" property="articleDel"/>
+        <result column="article_del" property="del"/>
 
         <!-- 关联作者信息 (一篇文章只有一个作者) -->
         <association property="consult" javaType="com.hualan.sfzy.model.entity.Consult">
@@ -54,17 +54,17 @@
             <result column="address" property="address"/>
             <result column="author_introduction" property="introduction"/>
             <result column="author_job" property="job"/>
-            <result column="author_del" property="consultDel"/>
+            <result column="author_del" property="del"/>
         </association>
         <!-- 关联分类信息 (一篇文章只有一个分类) -->
         <association property="articleClassify" javaType="com.hualan.sfzy.model.entity.ArticleClassify">
             <id column="category_id" property="id"/>
             <result column="category_name" property="classifyName"/>
-            <result column="category_del" property="articleClassifyDel"/>
+            <result column="category_del" property="del"/>
         </association>
     </resultMap>
     <!--    根据文章的文章名、作者、分类进行多条件查询-->
-    <select id="selectMultiple" resultMap="MultipleResultMap" parameterType="com.hualan.sfzy.model.vo.ArticleQuery">
+    <select id="selectMultiple" resultType="com.hualan.sfzy.model.dto.ArticleDTO" parameterType="com.hualan.sfzy.model.vo.ArticleQuery">
         SELECT
         a.id AS article_id,
         a.article_name,

@@ -52,7 +52,7 @@ public class CharityCenter {
     /**
      * 是否删除：0正常 1删除
      */
-    private Integer charityCenterDel;
+    private Integer del;
     // 移除以下复合属性
     // private Consult consult;
    

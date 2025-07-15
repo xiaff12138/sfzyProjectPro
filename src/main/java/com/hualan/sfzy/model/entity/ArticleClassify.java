@@ -19,5 +19,5 @@ public class ArticleClassify {
     /**
      * 是否删除：0正常 1删除
      */
-    private Integer articleClassifyDel;
+    private Integer del;
 }
